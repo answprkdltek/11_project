@@ -1,5 +1,6 @@
 package kr.ac.cnu.web.games.blackjack;
 
+import kr.ac.cnu.web.exceptions.NotEnoughBalanceException;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -70,10 +71,26 @@ public class GameRoom {
         player.stand();
     }
 
+    public Card doubleDown(String name) {
+        Player player = playerList.get(name);
+
+        try {
+            long additionalBet = player.getCurrentBet();
+            player.placeBet(additionalBet);
+        }
+        catch (NotEnoughBalanceException e) {
+            long allIn = player.getBalance();
+            player.placeBet(allIn);
+        }
+
+        Card card = player.hitCard();
+        player.stand();
+        return card;
+    }
+
     public void playDealer() {
         dealer.play();
         evaluator.evaluate();
         this.isFinished = true;
     }
-
 }
