@@ -45,7 +45,7 @@ public class Player {
     }
 
     public void win() {
-        if(this.getHand().getCardSum() == 21){
+        if(this.getHand().getCardSum() == 21 && this.getHand().getCardList().size() == 2){
             balance += currentBet * 2.5;
         }else {
             balance += currentBet * 2;
