@@ -644,6 +644,41 @@
 
         return "<div class='card " + className + "' data-value='" + rank +"'></div>";
     }
+
+    function updateRanking() {
+        function clearList(ranking) {
+            ranking.html("<ol></ol>");
+        }
+
+        function getList(ranking) {
+            return ranking.find('ol');
+        }
+
+        function appendItem(ranking, name, account) {
+            var list = getList(ranking);
+            var text = name + " (" + account + ")";
+            list.append("<li>" + text + "</li>");
+        }
+
+        $('.ranking').each(function () {
+            var ranking = $(this);
+            $.ajax({
+                type: 'GET',
+                url: 'http://localhost:8080/api/black-jack/ranking',
+                headers: {
+                    'records': ranking.attr('data-records')
+                },
+            }).done(function(data) {
+                clearList(ranking);
+                $.each(data, function(index, user) {
+                    appendItem(ranking, user.name, user.account);
+                });
+            });
+        });
+    }
+
+    updateRanking();
+    setInterval(updateRanking, 5000);
 </script>
 
 </html>
