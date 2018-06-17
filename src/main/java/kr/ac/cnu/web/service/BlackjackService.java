@@ -1,6 +1,7 @@
 package kr.ac.cnu.web.service;
 
 import kr.ac.cnu.web.exceptions.NoLoginException;
+import kr.ac.cnu.web.exceptions.NoUserException;
 import kr.ac.cnu.web.games.blackjack.Deck;
 import kr.ac.cnu.web.games.blackjack.GameRoom;
 import kr.ac.cnu.web.model.User;
@@ -95,11 +96,11 @@ public class BlackjackService {
     }
 
     public User login(String name) {
-        return this.getUserFromSession(name);
+        return userRepository.findById(name).orElseThrow(() -> new NoLoginException());
     }
 
     private User getUserFromSession(String name) {
-        return userRepository.findById(name).orElseThrow(() -> new NoLoginException());
+        return userRepository.findById(name).orElseThrow(() -> new NoUserException());
     }
 
     public List<User> getTopNUsers(int nRecords) {
