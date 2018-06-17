@@ -14,6 +14,7 @@ import java.util.Map;
 @Service
 public class BlackjackService {
     private final int DECK_NUMBER = 1;
+    private final int MIN_BET = 3000;
     private final Map<String, GameRoom> gameRoomMap = new HashMap<>();
 
     public GameRoom createGameRoom(User user) {
@@ -42,6 +43,10 @@ public class BlackjackService {
 
     public GameRoom bet(String roomId, User user, long bet) {
         GameRoom gameRoom = gameRoomMap.get(roomId);
+
+        if (bet < MIN_BET) {
+            return gameRoom;
+        }
 
         gameRoom.reset();
         gameRoom.bet(user.getName(), bet);

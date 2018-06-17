@@ -478,7 +478,8 @@
 <script>
     var user;
     var gameRoomId;
-    var previousBetAmount = 0;
+    var minBet = 3000;
+    var previousBetAmount = minBet;
 
     $('#login_button').click(function() {
         var loginName = $('#input_login_name').val();
@@ -514,6 +515,7 @@
 
     $('#deal').click(function() {
         var bet = parseInt($('#bet').html());
+        previousBetAmount = bet;
 
         $.ajax({
             type: 'POST',
@@ -592,6 +594,9 @@
         if(currentBet < bet) {
             bet = currentBet;
         }
+        if(currentBet <= minBet){
+            bet = 0;
+        }
 
         $('#bet').html(currentBet - bet);
         $('#money').html(money + bet);
@@ -645,7 +650,6 @@
             $('.player-cards').append('<div id="playerTotal" class="player-total">' + gameRoom.playerList[user.name].hand.cardSum + '</div>')
         }
 
-        previousBetAmount = gameRoom.playerList[user.name].currentBet;
     }
 
     function generateCardDiv(rank, suit) {
