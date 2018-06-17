@@ -1,10 +1,7 @@
 package kr.ac.cnu.web.controller.api;
 
-import kr.ac.cnu.web.exceptions.NoLoginException;
-import kr.ac.cnu.web.exceptions.NoUserException;
 import kr.ac.cnu.web.games.blackjack.GameRoom;
 import kr.ac.cnu.web.model.User;
-import kr.ac.cnu.web.repository.UserRepository;
 import kr.ac.cnu.web.service.BlackjackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,47 +27,35 @@ import java.util.List;
 public class BlackApiController {
     @Autowired
     private BlackjackService blackjackService;
-    @Autowired
-    private UserRepository userRepository;
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public User login(@RequestBody String name) {
-        return userRepository.findById(name).orElseThrow(() -> new NoUserException());
+        return blackjackService.login(name);
     }
 
     @PostMapping("/rooms")
     public GameRoom createRoom(@RequestHeader("name") String name) {
-        User user = this.getUserFromSession(name);
-
-        return blackjackService.createGameRoom(user);
+        return blackjackService.createGameRoom(name);
     }
 
     @PostMapping(value = "/rooms/{roomId}/bet", consumes = MediaType.APPLICATION_JSON_VALUE)
     public GameRoom bet(@RequestHeader("name") String name, @PathVariable String roomId, @RequestBody long betMoney) {
-        User user = this.getUserFromSession(name);
-
-        return blackjackService.bet(roomId, user, betMoney);
+        return blackjackService.bet(roomId, name, betMoney);
     }
 
     @PostMapping("/rooms/{roomId}/hit")
     public GameRoom hit(@RequestHeader("name") String name, @PathVariable String roomId) {
-        User user = this.getUserFromSession(name);
-
-        return blackjackService.hit(roomId, user);
+        return blackjackService.hit(roomId, name);
     }
 
     @PostMapping("/rooms/{roomId}/stand")
     public GameRoom stand(@RequestHeader("name") String name, @PathVariable String roomId) {
-        User user = this.getUserFromSession(name);
-
-        return blackjackService.stand(roomId, user);
+        return blackjackService.stand(roomId, name);
     }
 
     @PostMapping("/rooms/{roomId}/double_down")
     public GameRoom doubleDown(@RequestHeader("name") String name, @PathVariable String roomId) {
-        User user = this.getUserFromSession(name);
-
-        return blackjackService.doubleDown(roomId, user);
+        return blackjackService.doubleDown(roomId, name);
     }
 
     @GetMapping("/rooms/{roomId}")
@@ -80,17 +65,6 @@ public class BlackApiController {
 
     @GetMapping(value = "/ranking")
     public List<User> ranking(@RequestHeader("records") int nRecords) {
-        List<User> users = userRepository.findAllByOrderByAccountDesc();
-
-        if ((nRecords > 0) && (nRecords < users.size())) {
-            return users.subList(0, nRecords);
-        }
-        else {
-            return users;
-        }
-    }
-
-    private User getUserFromSession(String name) {
-        return userRepository.findById(name).orElseThrow(() -> new NoLoginException());
+        return blackjackService.getTopNUsers(nRecords);
     }
 }
