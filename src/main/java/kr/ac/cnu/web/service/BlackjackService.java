@@ -57,7 +57,9 @@ public class BlackjackService {
         User user = this.getUserFromSession(name);
 
         if (bet < MIN_BET) {
-            return gameRoom;
+            if(bet != user.getAccount()){
+                return gameRoom;
+            }
         }
 
         gameRoom.reset();

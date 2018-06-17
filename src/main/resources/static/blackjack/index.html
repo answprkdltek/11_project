@@ -604,6 +604,7 @@
 
     function drawGameRoom(gameRoom) {
         console.log(gameRoom);
+        var userBalance = gameRoom.playerList[user.name].balance;
         if (gameRoom.finished) {
             $('#deal').show();
             $('#more').show();
@@ -611,8 +612,7 @@
             $('#hit').hide();
             $('#stand').hide();
             $('#double_down').hide();
-            var userBalance = gameRoom.playerList[user.name].balance;
-            if(previousBetAmount > userBalance){
+            if(previousBetAmount > userBalance && userBalance < minBet){
                 $('#bet').html(userBalance);
                 $('#money').html(0);
             }
@@ -628,7 +628,7 @@
             $('#stand').show();
             $('#double_down').show();
             $('#bet').html(gameRoom.playerList[user.name].currentBet);
-            $('#money').html(gameRoom.playerList[user.name].balance);
+            $('#money').html(userBalance);
         }
 
         $('.dealer-cards').html("");
@@ -649,7 +649,6 @@
         if (gameRoom.playerList[user.name].hand.cardList.length > 0) {
             $('.player-cards').append('<div id="playerTotal" class="player-total">' + gameRoom.playerList[user.name].hand.cardSum + '</div>')
         }
-
     }
 
     function generateCardDiv(rank, suit) {
