@@ -27,7 +27,15 @@ public class Hand {
         int sum = 0;
 
         for (Card card : cardList) {
-            if(card.getRank() > 10) {
+            if(card.getRank() == 1) {
+                if(sum <= 10) {
+                    sum += 11;
+                }
+                else {
+                    sum += 1;
+                }
+            }
+            else if(card.getRank() > 10 && card.getRank() != 1) {
                 sum += 10;
             }
             else {
