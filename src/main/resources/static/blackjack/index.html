@@ -51,6 +51,16 @@
             background-color: #FFFFFF;
         }
 
+        article {
+            float: left;
+            width: 80%;
+        }
+
+        aside {
+            float: right;
+            width: 20%;
+        }
+
         .clear{
             clear: both;
         }
@@ -62,6 +72,11 @@
             background-color: #fff;
             min-height: 500px;
             text-align: center;
+        }
+
+        .ranking {
+            width: auto;
+            margin: 0 auto;
         }
 
         .dealer-cards .card, .player-cards .card {
@@ -405,43 +420,47 @@
     </style>
 </head>
 <body>
-<div class="page" id="login">
-    <div>
-        <input type="text" id="input_login_name" />
-        <div class="buttons"><div class="btn" id="login_button">Login</div></div>
-        <div class="buttons"><div class="btn" id="signup_button">Signup</div></div>
-    </div>
-</div>
-<div class="page" id="lobby" style="display: none">
-    <div>
-        <div class="buttons"><div class="btn" id="create_room_button">Create</div></div>
-    </div>
-</div>
-<div class="page" id="game" style="display: none">
-    <div class="dealer-cards"></div>
-    <div class="clear"></div>
-    <div class="player-cards"></div>
-    <div class="buttons">
-        <div class="btn" id="hit">Hit</div>
-        <div class="btn" id="stand">Stand</div>
-        <div class="btn" id="double_down">Double Down</div>
-    </div>
-    <div class="buttons"><div class="btn" id="deal">Deal</div></div>
-    <div class="betting-area">
-        <b>Your Bet</b><br>
-        <div id="bet" class="bet money">0</div>
+<article>
+    <div class="page" id="login">
         <div>
-            <div class="btn" id="more">+</div>
-            <div class="btn" id="less">-</div>
+            <input type="text" id="input_login_name" />
+            <div class="buttons"><div class="btn" id="login_button">Login</div></div>
         </div>
-        <div class="clear"></div>
     </div>
-    <div>
-        <b>Available Funds</b><br>
-        <span id="money" class="money"></span>
-        <div class="clear"></div>
+    <div class="page" id="lobby" style="display: none">
+        <div>
+            <div class="buttons"><div class="btn" id="create_room_button">Create</div></div>
+        </div>
     </div>
-</div>
+    <div class="page" id="game" style="display: none">
+        <div class="dealer-cards"></div>
+        <div class="clear"></div>
+        <div class="player-cards"></div>
+        <div class="buttons">
+            <div class="btn" id="hit">Hit</div>
+            <div class="btn" id="stand">Stand</div>
+            <div class="btn" id="double_down">Double Down</div>
+        </div>
+        <div class="buttons"><div class="btn" id="deal">Deal</div></div>
+        <div class="betting-area">
+            <b>Your Bet</b><br>
+            <div id="bet" class="bet money">0</div>
+            <div>
+                <div class="btn" id="more">+</div>
+                <div class="btn" id="less">-</div>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div>
+            <b>Available Funds</b><br>
+            <span id="money" class="money"></span>
+            <div class="clear"></div>
+        </div>
+    </div>
+</article>
+<aside>
+    <div class="ranking" data-records="10"></div>
+</aside>
 </body>
 <script src="./jquery-3.3.1.min.js"></script>
 
@@ -656,6 +675,41 @@
 
         return "<div class='card " + className + "' data-value='" + rank +"'></div>";
     }
+
+    function updateRanking() {
+        function clearList(ranking) {
+            ranking.html("<ol></ol>");
+        }
+
+        function getList(ranking) {
+            return ranking.find('ol');
+        }
+
+        function appendItem(ranking, name, account) {
+            var list = getList(ranking);
+            var text = name + " (" + account + ")";
+            list.append("<li>" + text + "</li>");
+        }
+
+        $('.ranking').each(function () {
+            var ranking = $(this);
+            $.ajax({
+                type: 'GET',
+                url: 'http://localhost:8080/api/black-jack/ranking',
+                headers: {
+                    'records': ranking.attr('data-records')
+                },
+            }).done(function(data) {
+                clearList(ranking);
+                $.each(data, function(index, user) {
+                    appendItem(ranking, user.name, user.account);
+                });
+            });
+        });
+    }
+
+    updateRanking();
+    setInterval(updateRanking, 5000);
 </script>
 
 </html>
