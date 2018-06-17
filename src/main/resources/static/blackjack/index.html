@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BlackJack</title>
+    <title>Title</title>
 </head>
     <style>
         /* Reset */
@@ -495,19 +495,6 @@
         });
     });
 
-    $('#signup_button').click(function() {
-        var loginName = $('#input_login_name').val();
-        $.ajax({
-            type: 'POST',
-            url: 'http://localhost:8080/api/black-jack/users',
-            data: loginName,
-            contentType:'application/json;'
-        }).done(function(data) {
-            $('#login').hide();
-            $('#lobby').show();
-            user = data;
-        });
-    });
     $('#create_room_button').click(function() {
         $.ajax({
             type: 'POST',
