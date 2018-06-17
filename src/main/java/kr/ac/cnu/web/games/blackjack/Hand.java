@@ -27,13 +27,23 @@ public class Hand {
         int sum = 0;
 
         for (Card card : cardList) {
-            if(card.getRank() > 10) {
+            if(card.getRank() == 1) {
+                sum += 11;
+            }
+            else if(card.getRank() > 10) {
                 sum += 10;
             }
             else {
                 sum += card.getRank();
             }
         }
+
+        for (Card card : cardList) {
+            if((card.getRank() == 1) && (sum > 21)) {
+                sum -= 10;
+            }
+        }
+
         return sum;
     }
 
