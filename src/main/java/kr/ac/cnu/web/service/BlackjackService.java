@@ -21,6 +21,7 @@ import java.util.Map;
 public class BlackjackService {
     private final int DECK_NUMBER = 1;
     private final int MIN_BET = 3000;
+    private final int MAX_BET = 10000;
     private final Map<String, GameRoom> gameRoomMap = new HashMap<>();
 
     @Autowired
@@ -64,6 +65,10 @@ public class BlackjackService {
             if(bet != user.getAccount()){
                 return gameRoom;
             }
+        }
+
+        if (bet > MAX_BET) {
+            return gameRoom;
         }
 
         gameRoom.reset();
