@@ -4,6 +4,7 @@ import kr.ac.cnu.web.exceptions.NoLoginException;
 import kr.ac.cnu.web.exceptions.NoUserException;
 import kr.ac.cnu.web.games.blackjack.Deck;
 import kr.ac.cnu.web.games.blackjack.GameRoom;
+import kr.ac.cnu.web.games.blackjack.Player;
 import kr.ac.cnu.web.model.User;
 import kr.ac.cnu.web.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,8 @@ public class BlackjackService {
         gameRoom.bet(user.getName(), bet);
         gameRoom.deal();
 
+        this.updateUser(user, gameRoom);
+
         return gameRoom;
     }
 
@@ -73,6 +76,8 @@ public class BlackjackService {
         User user = this.getUserFromSession(name);
 
         gameRoom.hit(user.getName());
+
+        this.updateUser(user, gameRoom);
 
         return gameRoom;
     }
@@ -84,6 +89,8 @@ public class BlackjackService {
         gameRoom.stand(user.getName());
         gameRoom.playDealer();
 
+        this.updateUser(user, gameRoom);
+
         return gameRoom;
     }
 
@@ -94,6 +101,8 @@ public class BlackjackService {
         gameRoom.doubleDown(user.getName());
         gameRoom.playDealer();
 
+        this.updateUser(user, gameRoom);
+
         return gameRoom;
     }
 
@@ -103,6 +112,13 @@ public class BlackjackService {
 
     private User getUserFromSession(String name) {
         return userRepository.findById(name).orElseThrow(() -> new NoUserException());
+    }
+
+    private void updateUser(User user, GameRoom gameRoom) {
+        Player player = gameRoom.getPlayerList().get(user.getName());
+        user.setAccount(player.getBalance());
+
+        userRepository.save(user);
     }
 
     public List<User> getTopNUsers(int nRecords) {
