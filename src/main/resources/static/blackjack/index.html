@@ -480,6 +480,7 @@
     var gameRoomId;
     var minBet = 3000;
     var previousBetAmount = minBet;
+    var maxBet = 10000;
 
     $('#login_button').click(function() {
         var loginName = $('#input_login_name').val();
@@ -582,9 +583,14 @@
         if (money < bet) {
             bet = money;
         }
-
-        $('#bet').html(currentBet + bet);
-        $('#money').html(money - bet);
+        if(currentBet + bet >= maxBet){
+            $('#bet').html(maxBet);
+            $('#money').html(money - (maxBet-currentBet));
+        }
+        else{
+            $('#bet').html(currentBet + bet);
+            $('#money').html(money - bet);
+        }
     });
 
     $('#less').click(function(){
