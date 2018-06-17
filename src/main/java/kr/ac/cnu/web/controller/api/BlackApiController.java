@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.awt.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by rokim on 2018. 5. 21..
@@ -35,6 +37,19 @@ public class BlackApiController {
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public User login(@RequestBody String name) {
         return userRepository.findById(name).orElseThrow(() -> new NoUserException());
+    }
+    @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public User signup(@RequestBody String name) {
+        //To check already used name
+        Optional<User> userOptional = userRepository.findById(name);
+
+        if(((Optional) userOptional).isPresent()){
+            throw new RuntimeException();
+        }
+
+        User user = new User(name, 50000);
+
+        return userRepository.save(user);
     }
 
     @PostMapping("/rooms")
@@ -65,11 +80,29 @@ public class BlackApiController {
         return blackjackService.stand(roomId, user);
     }
 
+    @PostMapping("/rooms/{roomId}/double_down")
+    public GameRoom doubleDown(@RequestHeader("name") String name, @PathVariable String roomId) {
+        User user = this.getUserFromSession(name);
+
+        return blackjackService.doubleDown(roomId, user);
+    }
+
     @GetMapping("/rooms/{roomId}")
     public GameRoom getGameRoomData(@PathVariable String roomId) {
         return blackjackService.getGameRoom(roomId);
     }
 
+    @GetMapping(value = "/ranking")
+    public List<User> ranking(@RequestHeader("records") int nRecords) {
+        List<User> users = userRepository.findAllByOrderByAccountDesc();
+
+        if ((nRecords > 0) && (nRecords < users.size())) {
+            return users.subList(0, nRecords);
+        }
+        else {
+            return users;
+        }
+    }
 
     private User getUserFromSession(String name) {
         return userRepository.findById(name).orElseThrow(() -> new NoLoginException());

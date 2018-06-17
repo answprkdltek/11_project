@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>BlackJack</title>
 </head>
     <style>
         /* Reset */
@@ -56,6 +56,16 @@
             border-bottom: 1px solid black;
         }
 
+        article {
+            float: left;
+            width: 80%;
+        }
+
+        aside {
+            float: right;
+            width: 20%;
+        }
+
         .clear{
             clear: both;
         }
@@ -67,6 +77,11 @@
             background-color: #fff;
             min-height: 500px;
             text-align: center;
+        }
+
+        .ranking {
+            width: auto;
+            margin: 0 auto;
         }
 
         .dealer-cards .card, .player-cards .card {
@@ -93,7 +108,7 @@
         }
 
         .buttons{
-            width: 210px;
+            width: 320px;
             margin: 20px auto 0 auto;
         }
 
@@ -432,7 +447,11 @@
         <div class="dealer-cards"></div>
         <div class="clear"></div>
         <div class="player-cards"></div>
-        <div class="buttons"><div class="btn" id="hit">Hit</div><div class="btn" id="stand">Stand</div></div>
+        <div class="buttons">
+            <div class="btn" id="hit">Hit</div>
+            <div class="btn" id="stand">Stand</div>
+            <div class="btn" id="double_down">Double Down</div>
+        </div>
         <div class="buttons"><div class="btn" id="deal">Deal</div></div>
         <div class="betting-area">
             <b>Your Bet</b><br>
@@ -450,6 +469,9 @@
         </div>
     </div>
 </article>
+<aside>
+    <div class="ranking" data-records="10"></div>
+</aside>
 </body>
 <script src="./jquery-3.3.1.min.js"></script>
 
@@ -473,6 +495,19 @@
         });
     });
 
+    $('#signup_button').click(function() {
+        var loginName = $('#input_login_name').val();
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8080/api/black-jack/users',
+            data: loginName,
+            contentType:'application/json;'
+        }).done(function(data) {
+            $('#login').hide();
+            $('#lobby').show();
+            user = data;
+        });
+    });
     $('#create_room_button').click(function() {
         $.ajax({
             type: 'POST',
@@ -538,8 +573,20 @@
         });
     })
 
+    $('#double_down').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8080/api/black-jack/rooms/' + gameRoomId + '/double_down',
+            headers: {
+                'name':user.name
+            },
+        }).done(function(data) {
+            drawGameRoom(data);
+        });
+    })
+
     $('#more').click(function(){
-        var bet = 100;
+        var bet = 1000; //수정
         var currentBet = parseInt($('#bet').html());
         var money = parseInt($('#money').html());
         if (money < bet) {
@@ -551,7 +598,7 @@
     });
 
     $('#less').click(function(){
-        var bet = 100;
+        var bet = 1000; //수정
         var currentBet = parseInt($('#bet').html());
         var money = parseInt($('#money').html());
         if(currentBet < bet) {
@@ -570,12 +617,14 @@
             $('#less').show();
             $('#hit').hide();
             $('#stand').hide();
+            $('#double_down').hide();
         } else {
             $('#deal').hide();
             $('#more').hide();
             $('#less').hide();
             $('#hit').show();
             $('#stand').show();
+            $('#double_down').show();
         }
 
         $('.dealer-cards').html("");
@@ -659,6 +708,41 @@
         var player = gameRoom.playerList[user.name];
         user.account = player.balance;
     }
+
+    function updateRanking() {
+        function clearList(ranking) {
+            ranking.html("<ol></ol>");
+        }
+
+        function getList(ranking) {
+            return ranking.find('ol');
+        }
+
+        function appendItem(ranking, name, account) {
+            var list = getList(ranking);
+            var text = name + " (" + account + ")";
+            list.append("<li>" + text + "</li>");
+        }
+
+        $('.ranking').each(function () {
+            var ranking = $(this);
+            $.ajax({
+                type: 'GET',
+                url: 'http://localhost:8080/api/black-jack/ranking',
+                headers: {
+                    'records': ranking.attr('data-records')
+                },
+            }).done(function(data) {
+                clearList(ranking);
+                $.each(data, function(index, user) {
+                    appendItem(ranking, user.name, user.account);
+                });
+            });
+        });
+    }
+
+    updateRanking();
+    setInterval(updateRanking, 5000);
 </script>
 
 </html>
