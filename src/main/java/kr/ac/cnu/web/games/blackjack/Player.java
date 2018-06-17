@@ -22,11 +22,13 @@ public class Player {
         this.hand = hand;
 
         isPlaying = false;
+        currentBet = 0;
     }
 
     public void reset() {
         hand.reset();
         isPlaying = false;
+        currentBet = 0;
     }
 
     public void placeBet(long bet) {
@@ -34,7 +36,7 @@ public class Player {
             throw new NotEnoughBalanceException();
         }
         balance -= bet;
-        currentBet = bet;
+        currentBet += bet;
 
         isPlaying = true;
     }
