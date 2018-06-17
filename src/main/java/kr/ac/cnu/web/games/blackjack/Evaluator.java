@@ -22,7 +22,6 @@ public class Evaluator {
         int dealerResult = dealer.getHand().getCardSum();
 
 
-
         playerMap.forEach((s, player) -> {
             int playerResult = player.getHand().getCardSum();
             if (dealerResult <= 21) {    //딜러가 21이하인 경우
@@ -48,6 +47,4 @@ public class Evaluator {
 
         return true;
     }
-
-
 }
