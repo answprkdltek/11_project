@@ -51,6 +51,11 @@
             background-color: #FFFFFF;
         }
 
+        .user-info{
+            line-height: 30px;
+            border-bottom: 1px solid black;
+        }
+
         article {
             float: left;
             width: 80%;
@@ -420,6 +425,12 @@
     </style>
 </head>
 <body>
+<header>
+    <div class="user-info" id="user_info" style="display: none">
+        Name: <span id="user_info_name"></span>,
+        Balance: <span id="user_info_balance"></span>
+    </div>
+</header>
 <article>
     <div class="page" id="login">
         <div>
@@ -479,6 +490,8 @@
             $('#login').hide();
             $('#lobby').show();
             user = data;
+
+            drawUserInfo();
         });
     });
 
@@ -524,6 +537,9 @@
             contentType:'application/json;',
         }).done(function(data) {
             drawGameRoom(data);
+
+            updateUser(data);
+            drawUserInfo();
         });
     })
 
@@ -536,6 +552,9 @@
             },
         }).done(function(data) {
             drawGameRoom(data);
+
+            updateUser(data);
+            drawUserInfo();
         });
     })
 
@@ -548,6 +567,9 @@
             },
         }).done(function(data) {
             drawGameRoom(data);
+
+            updateUser(data);
+            drawUserInfo();
         });
     })
 
@@ -674,6 +696,17 @@
         className += suit.toLowerCase();
 
         return "<div class='card " + className + "' data-value='" + rank +"'></div>";
+    }
+
+    function drawUserInfo() {
+        $('#user_info_name').text(user.name);
+        $('#user_info_balance').text(user.account);
+        $('#user_info').show();
+    }
+
+    function updateUser(gameRoom) {
+        var player = gameRoom.playerList[user.name];
+        user.account = player.balance;
     }
 
     function updateRanking() {
