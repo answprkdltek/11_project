@@ -45,7 +45,9 @@ public class BlackjackService {
         GameRoom gameRoom = gameRoomMap.get(roomId);
 
         if (bet < MIN_BET) {
-            return gameRoom;
+            if(bet != user.getAccount()){
+                return gameRoom;
+            }
         }
 
         gameRoom.reset();
