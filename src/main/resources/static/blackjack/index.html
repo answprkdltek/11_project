@@ -515,6 +515,7 @@
 
     $('#deal').click(function() {
         var bet = parseInt($('#bet').html());
+        previousBetAmount = bet;
 
         $.ajax({
             type: 'POST',
@@ -649,7 +650,6 @@
             $('.player-cards').append('<div id="playerTotal" class="player-total">' + gameRoom.playerList[user.name].hand.cardSum + '</div>')
         }
 
-        previousBetAmount = gameRoom.playerList[user.name].currentBet;
     }
 
     function generateCardDiv(rank, suit) {
