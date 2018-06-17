@@ -2,6 +2,7 @@ package kr.ac.cnu.web.games.blackjack;
 
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +75,11 @@ public class GameRoom {
         dealer.play();
         evaluator.evaluate();
         this.isFinished = true;
+        if(deck.getCardList().size() <= 10){
+            deck.getCardList().clear();  //기존카드삭제
+            deck.createCards(1);  //덱 재생성
+            Collections.shuffle(deck.getCardList()); //덱 셔플
+        }
     }
 
 }
