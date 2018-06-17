@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>BlackJack</title>
 </head>
     <style>
         /* Reset */
@@ -103,7 +103,7 @@
         }
 
         .buttons{
-            width: 210px;
+            width: 320px;
             margin: 20px auto 0 auto;
         }
 
@@ -436,7 +436,11 @@
         <div class="dealer-cards"></div>
         <div class="clear"></div>
         <div class="player-cards"></div>
-        <div class="buttons"><div class="btn" id="hit">Hit</div><div class="btn" id="stand">Stand</div></div>
+        <div class="buttons">
+            <div class="btn" id="hit">Hit</div>
+            <div class="btn" id="stand">Stand</div>
+            <div class="btn" id="double_down">Double Down</div>
+        </div>
         <div class="buttons"><div class="btn" id="deal">Deal</div></div>
         <div class="betting-area">
             <b>Your Bet</b><br>
@@ -478,6 +482,19 @@
         });
     });
 
+    $('#signup_button').click(function() {
+        var loginName = $('#input_login_name').val();
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8080/api/black-jack/users',
+            data: loginName,
+            contentType:'application/json;'
+        }).done(function(data) {
+            $('#login').hide();
+            $('#lobby').show();
+            user = data;
+        });
+    });
     $('#create_room_button').click(function() {
         $.ajax({
             type: 'POST',
@@ -534,8 +551,20 @@
         });
     })
 
+    $('#double_down').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8080/api/black-jack/rooms/' + gameRoomId + '/double_down',
+            headers: {
+                'name':user.name
+            },
+        }).done(function(data) {
+            drawGameRoom(data);
+        });
+    })
+
     $('#more').click(function(){
-        var bet = 100;
+        var bet = 1000; //수정
         var currentBet = parseInt($('#bet').html());
         var money = parseInt($('#money').html());
         if (money < bet) {
@@ -547,7 +576,7 @@
     });
 
     $('#less').click(function(){
-        var bet = 100;
+        var bet = 1000; //수정
         var currentBet = parseInt($('#bet').html());
         var money = parseInt($('#money').html());
         if(currentBet < bet) {
@@ -566,12 +595,14 @@
             $('#less').show();
             $('#hit').hide();
             $('#stand').hide();
+            $('#double_down').hide();
         } else {
             $('#deal').hide();
             $('#more').hide();
             $('#less').hide();
             $('#hit').show();
             $('#stand').show();
+            $('#double_down').show();
         }
 
         $('.dealer-cards').html("");

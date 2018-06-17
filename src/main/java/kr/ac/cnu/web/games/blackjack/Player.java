@@ -22,11 +22,13 @@ public class Player {
         this.hand = hand;
 
         isPlaying = false;
+        currentBet = 0;
     }
 
     public void reset() {
         hand.reset();
         isPlaying = false;
+        currentBet = 0;
     }
 
     public void placeBet(long bet) {
@@ -34,7 +36,7 @@ public class Player {
             throw new NotEnoughBalanceException();
         }
         balance -= bet;
-        currentBet = bet;
+        currentBet += bet;
 
         isPlaying = true;
     }
@@ -45,7 +47,11 @@ public class Player {
     }
 
     public void win() {
-        balance += currentBet * 2;
+        if(this.getHand().getCardSum() == 21 && this.getHand().getCardList().size() == 2){
+            balance += currentBet * 2.5;
+        }else {
+            balance += currentBet * 2;
+        }
         currentBet = 0;
     }
 

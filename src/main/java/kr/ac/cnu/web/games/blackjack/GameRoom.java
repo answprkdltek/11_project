@@ -1,7 +1,9 @@
 package kr.ac.cnu.web.games.blackjack;
 
+import kr.ac.cnu.web.exceptions.NotEnoughBalanceException;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -61,6 +63,10 @@ public class GameRoom {
     public Card hit(String name) {
         Player player = playerList.get(name);
 
+        if(player.getHand().getCardSum() > 21) {
+            player.lost();
+        }
+
         return player.hitCard();
     }
 
@@ -70,10 +76,31 @@ public class GameRoom {
         player.stand();
     }
 
+    public Card doubleDown(String name) {
+        Player player = playerList.get(name);
+
+        try {
+            long additionalBet = player.getCurrentBet();
+            player.placeBet(additionalBet);
+        }
+        catch (NotEnoughBalanceException e) {
+            long allIn = player.getBalance();
+            player.placeBet(allIn);
+        }
+
+        Card card = player.hitCard();
+        player.stand();
+        return card;
+    }
+
     public void playDealer() {
         dealer.play();
         evaluator.evaluate();
         this.isFinished = true;
+        if(deck.getCardList().size() <= 10){
+            deck.getCardList().clear();  //기존카드삭제
+            deck.createCards(1);  //덱 재생성
+            Collections.shuffle(deck.getCardList()); //덱 셔플
+        }
     }
-
 }
