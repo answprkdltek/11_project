@@ -478,7 +478,8 @@
 <script>
     var user;
     var gameRoomId;
-    var previousBetAmount = 0;
+    var minBet = 3000;
+    var previousBetAmount = minBet;
 
     $('#login_button').click(function() {
         var loginName = $('#input_login_name').val();
@@ -591,6 +592,9 @@
         var money = parseInt($('#money').html());
         if(currentBet < bet) {
             bet = currentBet;
+        }
+        if(currentBet <= minBet){
+            bet = 0;
         }
 
         $('#bet').html(currentBet - bet);
