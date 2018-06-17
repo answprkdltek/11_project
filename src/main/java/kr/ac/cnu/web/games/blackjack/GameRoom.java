@@ -61,6 +61,10 @@ public class GameRoom {
     public Card hit(String name) {
         Player player = playerList.get(name);
 
+        if(player.getHand().getCardSum() >= 21) {
+            player.stand();
+        }
+
         return player.hitCard();
     }
 
