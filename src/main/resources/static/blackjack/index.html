@@ -51,6 +51,21 @@
             background-color: #FFFFFF;
         }
 
+        .user-info{
+            line-height: 30px;
+            border-bottom: 1px solid black;
+        }
+
+        article {
+            float: left;
+            width: 80%;
+        }
+
+        aside {
+            float: right;
+            width: 20%;
+        }
+
         .clear{
             clear: both;
         }
@@ -62,6 +77,11 @@
             background-color: #fff;
             min-height: 500px;
             text-align: center;
+        }
+
+        .ranking {
+            width: auto;
+            margin: 0 auto;
         }
 
         .dealer-cards .card, .player-cards .card {
@@ -88,7 +108,7 @@
         }
 
         .buttons{
-            width: 210px;
+            width: 320px;
             margin: 20px auto 0 auto;
         }
 
@@ -405,38 +425,53 @@
     </style>
 </head>
 <body>
-<div class="page" id="login">
-    <div>
-        <input type="text" id="input_login_name" />
-        <div class="buttons"><div class="btn" id="login_button">Login</div></div>
+<header>
+    <div class="user-info" id="user_info" style="display: none">
+        Name: <span id="user_info_name"></span>,
+        Balance: <span id="user_info_balance"></span>
     </div>
-</div>
-<div class="page" id="lobby" style="display: none">
-    <div>
-        <div class="buttons"><div class="btn" id="create_room_button">Create</div></div>
-    </div>
-</div>
-<div class="page" id="game" style="display: none">
-    <div class="dealer-cards"></div>
-    <div class="clear"></div>
-    <div class="player-cards"></div>
-    <div class="buttons"><div class="btn" id="hit">Hit</div><div class="btn" id="stand">Stand</div></div>
-    <div class="buttons"><div class="btn" id="deal">Deal</div></div>
-    <div class="betting-area">
-        <b>Your Bet</b><br>
-        <div id="bet" class="bet money">0</div>
+</header>
+<article>
+    <div class="page" id="login">
         <div>
-            <div class="btn" id="more">+</div>
-            <div class="btn" id="less">-</div>
+            <input type="text" id="input_login_name" />
+            <div class="buttons"><div class="btn" id="login_button">Login</div></div>
         </div>
-        <div class="clear"></div>
     </div>
-    <div>
-        <b>Available Funds</b><br>
-        <span id="money" class="money"></span>
-        <div class="clear"></div>
+    <div class="page" id="lobby" style="display: none">
+        <div>
+            <div class="buttons"><div class="btn" id="create_room_button">Create</div></div>
+        </div>
     </div>
-</div>
+    <div class="page" id="game" style="display: none">
+        <div class="dealer-cards"></div>
+        <div class="clear"></div>
+        <div class="player-cards"></div>
+        <div class="buttons">
+            <div class="btn" id="hit">Hit</div>
+            <div class="btn" id="stand">Stand</div>
+            <div class="btn" id="double_down">Double Down</div>
+        </div>
+        <div class="buttons"><div class="btn" id="deal">Deal</div></div>
+        <div class="betting-area">
+            <b>Your Bet</b><br>
+            <div id="bet" class="bet money">0</div>
+            <div>
+                <div class="btn" id="more">+</div>
+                <div class="btn" id="less">-</div>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div>
+            <b>Available Funds</b><br>
+            <span id="money" class="money"></span>
+            <div class="clear"></div>
+        </div>
+    </div>
+</article>
+<aside>
+    <div class="ranking" data-records="10"></div>
+</aside>
 </body>
 <script src="./jquery-3.3.1.min.js"></script>
 
@@ -456,6 +491,8 @@
             $('#login').hide();
             $('#lobby').show();
             user = data;
+
+            drawUserInfo();
         });
     });
 
@@ -488,6 +525,9 @@
             contentType:'application/json;',
         }).done(function(data) {
             drawGameRoom(data);
+
+            updateUser(data);
+            drawUserInfo();
         });
     })
 
@@ -500,6 +540,9 @@
             },
         }).done(function(data) {
             drawGameRoom(data);
+
+            updateUser(data);
+            drawUserInfo();
         });
     })
 
@@ -512,11 +555,26 @@
             },
         }).done(function(data) {
             drawGameRoom(data);
+
+            updateUser(data);
+            drawUserInfo();
+        });
+    })
+
+    $('#double_down').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:8080/api/black-jack/rooms/' + gameRoomId + '/double_down',
+            headers: {
+                'name':user.name
+            },
+        }).done(function(data) {
+            drawGameRoom(data);
         });
     })
 
     $('#more').click(function(){
-        var bet = 100;
+        var bet = 1000; //수정
         var currentBet = parseInt($('#bet').html());
         var money = parseInt($('#money').html());
         if (money < bet) {
@@ -528,7 +586,7 @@
     });
 
     $('#less').click(function(){
-        var bet = 100;
+        var bet = 1000; //수정
         var currentBet = parseInt($('#bet').html());
         var money = parseInt($('#money').html());
         if(currentBet < bet) {
@@ -547,6 +605,7 @@
             $('#less').show();
             $('#hit').hide();
             $('#stand').hide();
+            $('#double_down').hide();
             var userBalance = gameRoom.playerList[user.name].balance;
             if(previousBetAmount > userBalance){
                 $('#bet').html(userBalance);
@@ -562,6 +621,7 @@
             $('#less').hide();
             $('#hit').show();
             $('#stand').show();
+            $('#double_down').show();
             $('#bet').html(gameRoom.playerList[user.name].currentBet);
             $('#money').html(gameRoom.playerList[user.name].balance);
         }
@@ -635,6 +695,52 @@
 
         return "<div class='card " + className + "' data-value='" + rank +"'></div>";
     }
+
+    function drawUserInfo() {
+        $('#user_info_name').text(user.name);
+        $('#user_info_balance').text(user.account);
+        $('#user_info').show();
+    }
+
+    function updateUser(gameRoom) {
+        var player = gameRoom.playerList[user.name];
+        user.account = player.balance;
+    }
+
+    function updateRanking() {
+        function clearList(ranking) {
+            ranking.html("<ol></ol>");
+        }
+
+        function getList(ranking) {
+            return ranking.find('ol');
+        }
+
+        function appendItem(ranking, name, account) {
+            var list = getList(ranking);
+            var text = name + " (" + account + ")";
+            list.append("<li>" + text + "</li>");
+        }
+
+        $('.ranking').each(function () {
+            var ranking = $(this);
+            $.ajax({
+                type: 'GET',
+                url: 'http://localhost:8080/api/black-jack/ranking',
+                headers: {
+                    'records': ranking.attr('data-records')
+                },
+            }).done(function(data) {
+                clearList(ranking);
+                $.each(data, function(index, user) {
+                    appendItem(ranking, user.name, user.account);
+                });
+            });
+        });
+    }
+
+    updateRanking();
+    setInterval(updateRanking, 5000);
 </script>
 
 </html>
