@@ -33,6 +33,11 @@ public class BlackApiController {
         return blackjackService.login(name);
     }
 
+    @PostMapping(value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public User signUp(@RequestBody String name) {
+        return blackjackService.signUp(name);
+    }
+
     @PostMapping("/rooms")
     public GameRoom createRoom(@RequestHeader("name") String name) {
         return blackjackService.createGameRoom(name);

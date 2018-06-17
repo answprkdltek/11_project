@@ -1,5 +1,6 @@
 package kr.ac.cnu.web.service;
 
+import kr.ac.cnu.web.exceptions.ExistUserException;
 import kr.ac.cnu.web.exceptions.NoLoginException;
 import kr.ac.cnu.web.exceptions.NoUserException;
 import kr.ac.cnu.web.games.blackjack.Deck;
@@ -13,12 +14,15 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by rokim on 2018. 5. 26..
  */
 @Service
 public class BlackjackService {
+    private final int DEFAULT_ACCOUNT = 50000;
+
     private final int DECK_NUMBER = 1;
     private final int MIN_BET = 3000;
     private final Map<String, GameRoom> gameRoomMap = new HashMap<>();
@@ -130,5 +134,18 @@ public class BlackjackService {
         else {
             return users;
         }
+    }
+
+    public User signUp(String name) {
+        //To check already used name
+        Optional<User> userOptional = userRepository.findById(name);
+
+        if (userOptional.isPresent()) {
+            throw new ExistUserException();
+        }
+
+        User user = new User(name, DEFAULT_ACCOUNT);
+
+        return userRepository.save(user);
     }
 }
